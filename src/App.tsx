@@ -5,6 +5,8 @@ const About = React.lazy(() => import("./components/About"));
 const User = React.lazy(() => import("./components/User"));
 import Layout from "./Layout";
 import Loader from "./components/Loader";
+import Login from "./components/Login";
+import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 export default function App() {
   const router = createBrowserRouter(
@@ -20,10 +22,20 @@ export default function App() {
             <About />
           </React.Suspense>}
         />
-        <Route path="/user" element={
-          <React.Suspense fallback={<Loader message="User Component is Loading" />}>
-            <User />
-          </React.Suspense>}
+
+        {/* user route with protected route */}
+        <Route loader={() => false} element={<ProtectedRoutes />}>
+          <Route loader={async () => {
+            const data = await fetch('https://jsonplaceholder.typicode.com/todos')
+            return data.json();
+          }} path="/user" element={
+            <React.Suspense fallback={<Loader message="User Component is Loading" />}>
+              <User />
+            </React.Suspense>}
+          />
+        </Route>
+
+        <Route path="/login" element={<Login />}
         />
       </Route>
     )
